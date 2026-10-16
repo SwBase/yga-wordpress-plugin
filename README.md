@@ -85,7 +85,7 @@ where releases are built. Other branches stay on GHE.
 - Never change the github.com repository directly: the mirror pushes without force, so
   a commit made there stops it until removed.
 - The mirror authenticates with a deploy key with write access on the github.com
-  repository; its private half is the GHE secret `GITHUB_MIRROR_SSH_KEY`. To rotate it,
+  repository; its private half is the GHE secret `MIRROR_SSH_KEY`. To rotate it,
   replace both.
 
 Everything that reaches `main` is public. Keep secrets, customer data and internal

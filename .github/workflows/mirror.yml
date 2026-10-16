@@ -2,7 +2,7 @@
 # github.com, where release.yml builds the releases. Pushes exactly the ref that
 # triggered the run, without force: if github.com has diverged, this fails.
 #
-# Needs the secret GITHUB_MIRROR_SSH_KEY: the private half of a deploy key with write
+# Needs the secret MIRROR_SSH_KEY: the private half of a deploy key with write
 # access on swbase/yga-wordpress-plugin. A deploy key's push triggers workflows there.
 name: mirror
 
@@ -28,7 +28,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - env:
-          SSH_KEY: ${{ secrets.GITHUB_MIRROR_SSH_KEY }}
+          SSH_KEY: ${{ secrets.MIRROR_SSH_KEY }}
         run: |
           install -m 700 -d ~/.ssh
           printf '%s\n' "$SSH_KEY" >~/.ssh/mirror && chmod 600 ~/.ssh/mirror
