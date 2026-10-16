@@ -1,5 +1,8 @@
 <?php
 /**
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Copyright (C) 2026 Yielder Group B.V.
+ *
  * A `geo` field on the knowledge_hub REST endpoint, for the article body and summary.
  *
  * The Stuurlui theme stores a Knowledge Hub article in ACF fields it registers in PHP,
@@ -15,7 +18,7 @@
  * can check its write landed, and anonymous readers never see it.
  */
 
-namespace Yielder\Stuurlui\KnowledgeHubRest;
+namespace Yielder\Yga\KnowledgeHubRest;
 
 use WP_Error;
 use WP_Post;

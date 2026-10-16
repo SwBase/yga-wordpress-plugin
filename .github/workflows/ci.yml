@@ -1,0 +1,20 @@
+# Lint, build and the tests against WordPress in Docker, on every push and pull request.
+# Runs on yielder.ghe.com and on the public mirror on github.com alike.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: sudo apt-get update -q && sudo apt-get install -yq just
+      - run: bin/build.sh
+      - run: just test

@@ -1,0 +1,28 @@
+# Publishes a release for a pushed tag v<version>: the zip and the manifest.json that
+# installed copies of the plugin read to update themselves (includes/updates.php).
+# Only on the public github.com repository; yielder.ghe.com gets the tag too, and skips.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    if: github.server_url == 'https://github.com'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: sudo apt-get update -q && sudo apt-get install -yq just
+      - run: just test
+      # Fails unless the tag, the Version header and readme.txt's Stable tag agree.
+      - run: bin/build.sh "$GITHUB_REF_NAME"
+      - run: |
+          gh release create "$GITHUB_REF_NAME" \
+            dist/yga-wordpress-plugin.zip dist/manifest.json \
+            --verify-tag --title "$GITHUB_REF_NAME" --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}

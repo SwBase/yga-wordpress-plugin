@@ -1,5 +1,8 @@
 <?php
 /**
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Copyright (C) 2026 Yielder Group B.V.
+ *
  * Test fixture, never installed on a real site: what the Stuurlui theme registers on
  * yielder.com, as far as the plugin depends on it. Post type, taxonomies and the field
  * group's keys and names are copied from the live edit screen of a Knowledge Hub item.

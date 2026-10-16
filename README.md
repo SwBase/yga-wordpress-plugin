@@ -1,4 +1,4 @@
-# stuurlui-wp-plugin
+# yga-wordpress-plugin
 
 Yielder's own WordPress plugin for yielder.com, a site built and maintained by Stuurlui
 on their `stuurlui` theme. It adds what Yielder needs without touching Stuurlui's code.
@@ -38,20 +38,70 @@ The field keys are in `includes/knowledge-hub-rest.php`, taken from the live edi
 ## GEBRUIK
 
 ```bash
-just stuurlui-wp-plugin::test   # REST tests against a throwaway WordPress in Docker
-just stuurlui-wp-plugin::zip    # dist/stuurlui-wp-plugin.zip
+just test      # tests against a throwaway WordPress in Docker
+just build     # dist/yga-wordpress-plugin.zip and dist/manifest.json
+just release   # tag and push the Version in yga-wordpress-plugin.php
 ```
-
-Install the zip through Plugins → Nieuwe plugin → Plugin uploaden on yielder.com. To
-update, upload the new zip and choose to replace the installed version.
 
 `up` and `down` start and remove the test WordPress (127.0.0.1:8089, `WP_PORT` to move
 it) for poking at by hand. It runs WordPress 7.1, as yielder.com does, with free ACF
-instead of PRO and `tests/fixtures/stuurlui-theme.php` standing in for the theme.
+instead of PRO. `tests/fixtures/` holds mu-plugins that stand in for the theme and for
+GitHub; they are never part of the zip.
+
+## UPDATES
+
+The plugin updates itself from the releases of the public repository
+[swbase/yga-wordpress-plugin](https://github.com/swbase/yga-wordpress-plugin), and turns
+on auto-updates for itself (`includes/updates.php`):
+
+1. `Update URI: https://github.com/swbase/yga-wordpress-plugin` keeps WordPress from
+   asking wordpress.org; it calls the `update_plugins_github.com` filter instead.
+2. That filter reads `releases/latest/download/manifest.json`: a plain download, so it
+   counts against no GitHub API rate limit. The result is cached for six hours.
+3. The zip URL is built from the manifest's version
+   (`releases/download/v<version>/yga-wordpress-plugin.zip`), never taken from it.
+4. WordPress's auto-updater (WP-cron, twice a day) installs a newer version, and rolls
+   it back if it causes a fatal error.
+
+The first install is by hand: upload the zip from the latest release through Plugins →
+Nieuwe plugin → Plugin uploaden. Remove 0.1.0 (`stuurlui-wp-plugin`) first.
+
+## RELEASES
+
+1. Raise `Version:` in `yga-wordpress-plugin.php` and `Stable tag:` in `readme.txt`, and
+   add a changelog entry to `readme.txt`. Commit.
+2. `just release` tags `v<version>` and pushes it.
+3. `.github/workflows/release.yml` runs on github.com only. It checks that tag, Version
+   and Stable tag agree, runs the tests, builds with `bin/build.sh` and publishes the
+   zip and `manifest.json` as a GitHub release.
+
+## REPOSITORIES
+
+The source of truth is `yielder.ghe.com/yielder-platforms/yga-wordpress-plugin`. Every
+push also goes to the public mirror on github.com, which is where releases are built:
+
+```bash
+git remote add origin https://yielder.ghe.com/yielder-platforms/yga-wordpress-plugin.git
+git remote set-url --add --push origin https://yielder.ghe.com/yielder-platforms/yga-wordpress-plugin.git
+git remote set-url --add --push origin https://github.com/swbase/yga-wordpress-plugin.git
+```
+
+Everything in this repository is public. Keep secrets, customer data and internal
+hostnames out of it.
+
+## LICENTIE
+
+Copyright (C) 2026 Yielder Group B.V. Free software under the
+[GNU General Public License v3 or later](LICENSE), as WordPress requires of a plugin
+(GPL-compatible) and as the plugin header and `readme.txt` declare. Every source file
+carries `SPDX-License-Identifier: GPL-3.0-or-later`; the release zip contains
+`LICENSE`. Code from elsewhere may only be added if its licence is GPLv3-compatible.
 
 ## OPMERKINGEN
 
 - **Tell Stuurlui** the plugin is there. They manage the site through MainWP; a plugin
-  they do not know about is one they might disable.
+  they do not know about is one they might disable. Also tell them it updates itself
+  from GitHub, and check that `DISALLOW_FILE_MODS` and `AUTOMATIC_UPDATER_DISABLED` are
+  off on their sites: either one stops the auto-update.
 - **When Stuurlui changes the field group**, check the keys in the edit screen's HTML
   (`data-key` on each `.acf-field`) against the constants and the test fixture.

@@ -1,4 +1,7 @@
-// Against the WordPress in tests/compose.yaml; `just stuurlui-wp-plugin::test` starts it.
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Yielder Group B.V.
+//
+// Against the WordPress in tests/compose.yaml; `just test` starts it.
 // Users authenticate with the X-Test-User header the fixture honours.
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";

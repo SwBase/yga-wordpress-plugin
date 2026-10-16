@@ -1,7 +1,7 @@
-# A throwaway WordPress with ACF, the plugin, and the theme fixture, for `just
-# stuurlui-wp-plugin::test`. Same WordPress major as yielder.com; free ACF instead of
-# PRO, which behaves the same for the field types the plugin touches.
-name: stuurlui-wp-plugin-test
+# A throwaway WordPress with ACF, the plugin and the fixtures, for `just test`. Same
+# WordPress major as yielder.com; free ACF instead of PRO, which behaves the same for the
+# field types the plugin touches.
+name: yga-wordpress-plugin-test
 
 services:
   db:
@@ -36,7 +36,7 @@ services:
       WORDPRESS_DB_NAME: wordpress
     volumes: &wp-volumes
       - html:/var/www/html
-      - ..:/var/www/html/wp-content/plugins/stuurlui-wp-plugin:ro
+      - ..:/var/www/html/wp-content/plugins/yga-wordpress-plugin:ro
       - ./fixtures:/var/www/html/wp-content/mu-plugins:ro
 
   cli:
