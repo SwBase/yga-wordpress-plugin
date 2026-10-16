@@ -96,12 +96,3 @@ Copyright (C) 2026 Yielder Group B.V. Free software under the
 (GPL-compatible) and as the plugin header and `readme.txt` declare. Every source file
 carries `SPDX-License-Identifier: GPL-3.0-or-later`; the release zip contains
 `LICENSE`. Code from elsewhere may only be added if its licence is GPLv3-compatible.
-
-## OPMERKINGEN
-
-- **Tell Stuurlui** the plugin is there. They manage the site through MainWP; a plugin
-  they do not know about is one they might disable. Also tell them it updates itself
-  from GitHub, and check that `DISALLOW_FILE_MODS` and `AUTOMATIC_UPDATER_DISABLED` are
-  off on their sites: either one stops the auto-update.
-- **When Stuurlui changes the field group**, check the keys in the edit screen's HTML
-  (`data-key` on each `.acf-field`) against the constants and the test fixture.
