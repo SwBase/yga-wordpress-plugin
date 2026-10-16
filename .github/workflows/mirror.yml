@@ -1,0 +1,37 @@
+# Mirrors main and every v* tag from yielder.ghe.com to the public repository on
+# github.com, where release.yml builds the releases. Pushes exactly the ref that
+# triggered the run, without force: if github.com has diverged, this fails.
+#
+# Needs the secret GITHUB_MIRROR_SSH_KEY: the private half of a deploy key with write
+# access on swbase/yga-wordpress-plugin. A deploy key's push triggers workflows there.
+name: mirror
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mirror
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    if: github.server_url != 'https://github.com'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - env:
+          SSH_KEY: ${{ secrets.GITHUB_MIRROR_SSH_KEY }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" >~/.ssh/mirror && chmod 600 ~/.ssh/mirror
+          ssh-keyscan -t ed25519 github.com >~/.ssh/known_hosts 2>/dev/null
+          GIT_SSH_COMMAND="ssh -i ~/.ssh/mirror -o IdentitiesOnly=yes" \
+            git push git@github.com:swbase/yga-wordpress-plugin.git "$GITHUB_REF:$GITHUB_REF"

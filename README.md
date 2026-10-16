@@ -70,23 +70,25 @@ Nieuwe plugin → Plugin uploaden. Remove 0.1.0 (`stuurlui-wp-plugin`) first.
 
 1. Raise `Version:` in `yga-wordpress-plugin.php` and `Stable tag:` in `readme.txt`, and
    add a changelog entry to `readme.txt`. Commit.
-2. `just release` tags `v<version>` and pushes it.
+2. `just release` tags `v<version>` and pushes it to GHE; the mirror takes it on.
 3. `.github/workflows/release.yml` runs on github.com only. It checks that tag, Version
    and Stable tag agree, runs the tests, builds with `bin/build.sh` and publishes the
    zip and `manifest.json` as a GitHub release.
 
 ## REPOSITORIES
 
-The source of truth is `yielder.ghe.com/yielder-platforms/yga-wordpress-plugin`. Every
-push also goes to the public mirror on github.com, which is where releases are built:
+The source of truth is `yielder.ghe.com/yielder-platforms/yga-wordpress-plugin`; push
+only there. `.github/workflows/mirror.yml` pushes `main` and every `v*` tag on to the
+public repository [swbase/yga-wordpress-plugin](https://github.com/swbase/yga-wordpress-plugin),
+where releases are built. Other branches stay on GHE.
 
-```bash
-git remote add origin https://yielder.ghe.com/yielder-platforms/yga-wordpress-plugin.git
-git remote set-url --add --push origin https://yielder.ghe.com/yielder-platforms/yga-wordpress-plugin.git
-git remote set-url --add --push origin https://github.com/swbase/yga-wordpress-plugin.git
-```
+- Never change the github.com repository directly: the mirror pushes without force, so
+  a commit made there stops it until removed.
+- The mirror authenticates with a deploy key with write access on the github.com
+  repository; its private half is the GHE secret `GITHUB_MIRROR_SSH_KEY`. To rotate it,
+  replace both.
 
-Everything in this repository is public. Keep secrets, customer data and internal
+Everything that reaches `main` is public. Keep secrets, customer data and internal
 hostnames out of it.
 
 ## LICENTIE
