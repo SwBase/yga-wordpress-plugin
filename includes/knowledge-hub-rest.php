@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Copyright (C) 2026 Yielder Group B.V.
  *
- * A `geo` field on the knowledge_hub REST endpoint, for the article body and summary.
+ * A `yga` field on the knowledge_hub REST endpoint, for the article body and summary.
  *
  * The Stuurlui theme stores a Knowledge Hub article in ACF fields it registers in PHP,
  * without `show_in_rest`, and the post type has no editor. So the REST API creates a
@@ -12,10 +12,13 @@
  * field keys, and leaves the rest of the theme's field group alone.
  *
  *     POST /wp-json/wp/v2/knowledge_hub
- *     { "title": "...", "status": "draft", "geo": { "content": "<p>...</p>", "excerpt": "..." } }
+ *     { "title": "...", "status": "draft", "yga": { "content": "<p>...</p>", "excerpt": "..." } }
  *
  * The field is only in the `edit` context: the create response carries it, so a client
  * can check its write landed, and anonymous readers never see it.
+ *
+ * `geo` is the field's old name, kept as an alias until geo-contentmotor sends `yga`;
+ * 0.3.0 removes it. A request with both writes `yga` and ignores `geo`.
  */
 
 namespace Yielder\Yga\KnowledgeHubRest;
@@ -26,7 +29,8 @@ use WP_Post;
 defined( 'ABSPATH' ) || exit;
 
 const POST_TYPE  = 'knowledge_hub';
-const REST_FIELD = 'geo';
+const REST_FIELD = 'yga';
+const OLD_FIELD  = 'geo'; // Deprecated alias of REST_FIELD; goes in 0.3.0.
 
 // The theme's field keys. If Stuurlui renames one, writes fail with 500 instead of
 // silently dropping the article — see fields_missing().
@@ -43,23 +47,36 @@ function register(): void {
 		array(
 			'get_callback'    => __NAMESPACE__ . '\\read',
 			'update_callback' => __NAMESPACE__ . '\\update',
-			'schema'          => array(
-				'description'          => 'Article body and summary, stored in the theme\'s ACF fields.',
-				'type'                 => 'object',
-				'context'              => array( 'edit' ),
-				'additionalProperties' => false,
-				'properties'           => array(
-					'content' => array(
-						'description' => 'Article body as HTML.',
-						'type'        => 'string',
-					),
-					'excerpt' => array(
-						'description' => 'Plain-text summary shown on overview cards.',
-						'type'        => 'string',
-					),
-				),
-			),
+			'schema'          => schema( 'Article body and summary, stored in the theme\'s ACF fields.' ),
 		)
+	);
+	register_rest_field(
+		POST_TYPE,
+		OLD_FIELD,
+		array(
+			'get_callback'    => __NAMESPACE__ . '\\read',
+			'update_callback' => __NAMESPACE__ . '\\update_old',
+			'schema'          => schema( 'Deprecated: the old name of `yga`, removed in 0.3.0.' ),
+		)
+	);
+}
+
+function schema( string $description ): array {
+	return array(
+		'description'          => $description,
+		'type'                 => 'object',
+		'context'              => array( 'edit' ),
+		'additionalProperties' => false,
+		'properties'           => array(
+			'content' => array(
+				'description' => 'Article body as HTML.',
+				'type'        => 'string',
+			),
+			'excerpt' => array(
+				'description' => 'Plain-text summary shown on overview cards.',
+				'type'        => 'string',
+			),
+		),
 	);
 }
 
@@ -111,6 +128,18 @@ function update( array $value, WP_Post $post ) {
 	}
 
 	return true;
+}
+
+/**
+ * The `geo` alias: writes as `yga` does, unless the request also has `yga`.
+ *
+ * @return true|WP_Error
+ */
+function update_old( array $value, WP_Post $post, string $field, \WP_REST_Request $request ) {
+	if ( isset( $request[ REST_FIELD ] ) ) {
+		return true;
+	}
+	return update( $value, $post );
 }
 
 /**

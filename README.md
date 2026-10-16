@@ -9,7 +9,7 @@ A Knowledge Hub article (`knowledge_hub`) keeps its body and summary in ACF fiel
 theme registers in PHP, without `show_in_rest`, and the post type has no editor. The REST
 API can create one but not fill it: `content`, `excerpt` and `acf` are dropped silently.
 
-The plugin adds one REST field, `geo`, to the `knowledge_hub` endpoint:
+The plugin adds one REST field, `yga`, to the `knowledge_hub` endpoint:
 
 ```jsonc
 // POST /wp-json/wp/v2/knowledge_hub
@@ -18,14 +18,14 @@ The plugin adds one REST field, `geo`, to the `knowledge_hub` endpoint:
   "status": "draft",
   "knowledge_hub_category": [11], // Types: Blog, Nieuws, ...
   "knowledge_hub_cat": [84], // Categorieën
-  "geo": {
+  "yga": {
     "content": "<p>html</p>", // ACF knowledge_hub_content ("Artikel content")
     "excerpt": "...", // ACF settings-group → post-excerpt-content ("Samenvatting")
   },
 }
 ```
 
-- **Edit context only.** The create response carries `geo`, so a client can check its
+- **Edit context only.** The create response carries `yga`, so a client can check its
   write landed. Anonymous readers never see it.
 - **The rest of the group stays put.** The summary shares an ACF group with the page's
   breadcrumbs, menu colour and CTA buttons; writing it leaves those alone.
@@ -34,6 +34,10 @@ The plugin adds one REST field, `geo`, to the `knowledge_hub` endpoint:
   500 `yielder_acf_fields_missing` instead of dropping the article.
 
 The field keys are in `includes/knowledge-hub-rest.php`, taken from the live edit screen.
+
+`geo` is the field's old name. Until 0.3.0 it is an alias: it reads and writes the
+same, and a request with both writes `yga` and ignores `geo`. Release 0.3.0 once
+geo-contentmotor sends `yga` and checks it in the response.
 
 ## GEBRUIK
 

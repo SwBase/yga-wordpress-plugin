@@ -3,7 +3,7 @@ Tags: rest-api, acf
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.2.0
+Stable tag: 0.2.1
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -11,7 +11,7 @@ Yielder's additions to the Stuurlui theme on yielder.com. Lets geo-contentmotor 
 
 == Description ==
 
-A Knowledge Hub article (`knowledge_hub`) on yielder.com keeps its body and summary in ACF fields the Stuurlui theme registers without `show_in_rest`. This plugin adds a `geo` REST field to the `knowledge_hub` endpoint that reads and writes those two fields, so the REST API can create a complete article.
+A Knowledge Hub article (`knowledge_hub`) on yielder.com keeps its body and summary in ACF fields the Stuurlui theme registers without `show_in_rest`. This plugin adds a `yga` REST field to the `knowledge_hub` endpoint that reads and writes those two fields, so the REST API can create a complete article.
 
 The plugin is built for yielder.com and the Stuurlui theme; on any other site it does nothing useful.
 
@@ -31,6 +31,9 @@ The complete source, with its tests, is at https://github.com/swbase/yga-wordpre
 Later versions install automatically.
 
 == Changelog ==
+
+= 0.2.1 =
+* The REST field is now `yga`. `geo` still works as an alias; 0.3.0 removes it.
 
 = 0.2.0 =
 * Renamed to yga-wordpress-plugin. Remove 0.1.0 (stuurlui-wp-plugin) before installing.

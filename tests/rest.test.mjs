@@ -29,25 +29,25 @@ const create = (user, body) =>
 const read = (id, user = "admin") =>
   rest("GET", `/wp/v2/knowledge_hub/${id}`, { user, query: "&context=edit" });
 
-describe("the geo field", () => {
+describe("the yga field", () => {
   it("stores content and excerpt in the theme's ACF fields", async () => {
     const created = await create("admin", {
-      geo: { content: "<p>Dit is waar de content komt.</p>", excerpt: "Kort." },
+      yga: { content: "<p>Dit is waar de content komt.</p>", excerpt: "Kort." },
     });
     assert.equal(created.status, 201, JSON.stringify(created.json));
     // The create response already carries what was stored.
-    assert.deepEqual(created.json.geo, {
+    assert.deepEqual(created.json.yga, {
       content: "<p>Dit is waar de content komt.</p>",
       excerpt: "Kort.",
     });
 
     const fetched = await read(created.json.id);
-    assert.deepEqual(fetched.json.geo, created.json.geo);
+    assert.deepEqual(fetched.json.yga, created.json.yga);
   });
 
   it("stores them where the theme's templates read them, by field name", async () => {
     const created = await create("admin", {
-      geo: { content: "<p>Inhoud</p>", excerpt: "Kort." },
+      yga: { content: "<p>Inhoud</p>", excerpt: "Kort." },
     });
     const template = await rest("GET", "/stuurlui-test/v1/template", {
       query: `&id=${created.json.id}`,
@@ -58,7 +58,7 @@ describe("the geo field", () => {
   });
 
   it("changes the excerpt without blanking the rest of the settings group", async () => {
-    const created = await create("admin", { geo: { content: "<p>x</p>" } });
+    const created = await create("admin", { yga: { content: "<p>x</p>" } });
     const id = created.json.id;
     // Set breadcrumbs the way the edit screen would, through the test-only route.
     const set = await rest("POST", "/stuurlui-test/v1/breadcrumbs", {
@@ -69,11 +69,11 @@ describe("the geo field", () => {
 
     const updated = await rest("POST", `/wp/v2/knowledge_hub/${id}`, {
       user: "admin",
-      body: { geo: { excerpt: "Nieuw." } },
+      body: { yga: { excerpt: "Nieuw." } },
     });
     assert.equal(updated.status, 200, JSON.stringify(updated.json));
-    assert.equal(updated.json.geo.excerpt, "Nieuw.");
-    assert.equal(updated.json.geo.content, "<p>x</p>");
+    assert.equal(updated.json.yga.excerpt, "Nieuw.");
+    assert.equal(updated.json.yga.content, "<p>x</p>");
 
     const after = await rest("GET", "/stuurlui-test/v1/breadcrumbs", {
       user: "admin",
@@ -84,21 +84,56 @@ describe("the geo field", () => {
 
   it("strips scripts for users without unfiltered_html", async () => {
     const created = await create("contributor", {
-      geo: { content: '<p onclick="x()">Hoi</p><script>alert(1)</script>' },
+      yga: { content: '<p onclick="x()">Hoi</p><script>alert(1)</script>' },
     });
     assert.equal(created.status, 201, JSON.stringify(created.json));
-    assert.equal(created.json.geo.content, "<p>Hoi</p>alert(1)");
+    assert.equal(created.json.yga.content, "<p>Hoi</p>alert(1)");
   });
 
   it("keeps HTML as-is for users with unfiltered_html", async () => {
     const html = '<div style="background: #170647;"><p>Hoi</p></div>';
-    const created = await create("admin", { geo: { content: html } });
-    assert.equal(created.json.geo.content, html);
+    const created = await create("admin", { yga: { content: html } });
+    assert.equal(created.json.yga.content, html);
   });
 
   it("rejects unknown properties", async () => {
-    const created = await create("admin", { geo: { body: "<p>x</p>" } });
+    const created = await create("admin", { yga: { body: "<p>x</p>" } });
     assert.equal(created.status, 400);
+  });
+
+  it("is not visible to anonymous readers", async () => {
+    const created = await create("admin", {
+      status: "publish",
+      yga: { content: "<p>x</p>" },
+    });
+    const anonymous = await rest(
+      "GET",
+      `/wp/v2/knowledge_hub/${created.json.id}`,
+    );
+    assert.equal(anonymous.status, 200);
+    assert.equal(anonymous.json.yga, undefined);
+  });
+});
+
+// Until 0.3.0: geo-contentmotor still sends and checks `geo`.
+describe("the geo alias", () => {
+  it("writes like yga, and both carry the stored values", async () => {
+    const created = await create("admin", {
+      geo: { content: "<p>Oud veld</p>", excerpt: "Kort." },
+    });
+    assert.equal(created.status, 201, JSON.stringify(created.json));
+    const stored = { content: "<p>Oud veld</p>", excerpt: "Kort." };
+    assert.deepEqual(created.json.geo, stored);
+    assert.deepEqual(created.json.yga, stored);
+  });
+
+  it("is ignored when the request also has yga", async () => {
+    const created = await create("admin", {
+      yga: { content: "<p>Nieuw</p>" },
+      geo: { content: "<p>Oud</p>", excerpt: "Oud." },
+    });
+    assert.equal(created.status, 201, JSON.stringify(created.json));
+    assert.deepEqual(created.json.yga, { content: "<p>Nieuw</p>", excerpt: "" });
   });
 
   it("is not visible to anonymous readers", async () => {
@@ -110,7 +145,7 @@ describe("the geo field", () => {
       "GET",
       `/wp/v2/knowledge_hub/${created.json.id}`,
     );
-    assert.equal(anonymous.status, 200);
     assert.equal(anonymous.json.geo, undefined);
+    assert.equal(anonymous.json.yga, undefined);
   });
 });

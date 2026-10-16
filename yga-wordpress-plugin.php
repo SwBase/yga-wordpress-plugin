@@ -3,7 +3,7 @@
  * Plugin Name:       Yielder – Stuurlui site extensions
  * Plugin URI:        https://github.com/swbase/yga-wordpress-plugin
  * Description:       Yielder's additions to the Stuurlui theme on yielder.com. Lets geo-contentmotor fill Knowledge Hub articles over the REST API.
- * Version:           0.2.0
+ * Version:           0.2.1
  * Requires at least: 6.5
  * Requires PHP:      8.1
  * Author:            Yielder Group B.V.
