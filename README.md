@@ -68,7 +68,9 @@ on auto-updates for itself (`includes/updates.php`):
    it back if it causes a fatal error.
 
 The first install is by hand: upload the zip from the latest release through Plugins →
-Nieuwe plugin → Plugin uploaden. Remove 0.1.0 (`stuurlui-wp-plugin`) first.
+Nieuwe plugin → Plugin uploaden. Remove 0.1.0 (`stuurlui-wp-plugin`) first. The same
+works when a site does not pick up a release by itself; step by step in
+[docs/manual-install.md](docs/manual-install.md).
 
 ## RELEASES
 
